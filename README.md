@@ -32,7 +32,7 @@ Artalk.init({
 - **Always-on by design:** a single Go binary with an embedded SQLite database — it boots in about a second and sips memory.
 - **Persistent:** the config, SQLite database, and uploads live on a Railway volume (`/data`) and survive redeploys.
 - **Pinned upstream:** the official `artalk/artalk-go:2.10.1` image, pinned by digest — no `:latest` drift.
-- **Actually works on Railway:** the stock image hardcodes `--port 23366`, which Railway never routes to — the other Artalk template on the marketplace sits at 0% health for exactly that reason. This wrapper maps Railway's injected `PORT` on every boot.
+- **Actually works on Railway:** the stock image hardcodes `--port 23366`, which Railway never routes to — the other Artalk template on the marketplace sits at 0% health for exactly that reason. This wrapper maps Railway's injected `PORT` onto the server via `ATK_PORT` on every boot (the `--port` CLI flag is a dead flag in Artalk v2 — it is registered but never read — so `ATK_PORT` is the only mechanism that moves the listen port).
 
 ## Common Use Cases
 
@@ -52,7 +52,7 @@ Artalk.init({
 | `ATK_TIMEZONE` | `UTC` (baked) | Application timezone (IANA name). |
 | `ATK_SITE_DEFAULT` | `Artalk Blog` (baked) | Name of the default site, created on first boot. |
 | `ATK_SITE_URL` | Derived at boot from `RAILWAY_PUBLIC_DOMAIN` | URL of the default site. This is a placeholder — replace it with your real blog URL in the admin sidebar (Site Management), and add each blog origin there so the embedded widget passes the CORS origin check. |
-| `PORT` | Railway-injected | Mapped onto the server (`--port $PORT`) by the entrypoint on every boot. Do not set it yourself. |
+| `PORT` | Railway-injected | Mapped onto the server via `ATK_PORT` by the entrypoint on every boot (the `--port` CLI flag is dead in Artalk v2). Do not set it yourself. |
 
 Other Artalk settings use their upstream defaults and can be overridden with `ATK_*` environment variables (see the [upstream environment variable reference](https://artalk.js.org/en/guide/env)). The most useful ones:
 
@@ -69,7 +69,7 @@ Other Artalk settings use their upstream defaults and can be overridden with `AT
 ### Deployment Dependencies
 
 - **Runtime:** single Go-binary service from the official image; boots in ~1s, runs in well under 256 MB.
-- **Port:** 8080 by default, mapped from Railway's injected `PORT` on every boot (a template install sets no `PORT` variable, so the entrypoint defaults to Railway's default service port — listening on Artalk's own 23366 default fails the platform healthcheck).
+- **Port:** 8080 by default, mapped from Railway's injected `PORT` via `ATK_PORT` on every boot (a template install sets no `PORT` variable, so the entrypoint defaults to Railway's default service port — listening on Artalk's own 23366 default fails the platform healthcheck; the `--port` CLI flag is dead in Artalk v2 and cannot move the listen port).
 - **Persistence:** one Railway volume mounted at `/data` (config `artalk.yml`, SQLite database `artalk.db`, uploads).
 - **Healthcheck:** `/api/v2/version` (unauthenticated, 200, reports the running version). Note the app root `/` is a 302 to the admin sidebar (`/sidebar/`), so it cannot be the platform probe.
 - **Plan tier:** runs on Railway's Hobby plan; no companion services.

@@ -41,17 +41,21 @@ RUN chmod +x /railway-entrypoint.sh
 
 # The stock image CMD hardcodes --port 23366, which is exactly the bug that
 # leaves the other Artalk template at 0% health (Railway routes to its
-# injected PORT, not 23366). The entrypoint passes $PORT instead; when PORT is
-# unset (a template install sets no PORT variable), it defaults to 8080 —
-# Railway's healthcheck prober targets its default service port, and an app
-# listening on Artalk's own 23366 default fails the probe with "service
-# unavailable" until the 5-minute retry window expires (proven by the first
-# template-path install: container up on 23366, healthcheck failing 11 times,
-# deployment FAILED; setting PORT=23366 made the next deploy go Online).
+# injected PORT, not 23366). The entrypoint maps $PORT onto the server via
+# ATK_PORT — NOT via the --port CLI flag, which is a dead flag in Artalk v2
+# (registered in cmd/server.go, never read; the server listens on the config
+# file's `port:` or ATK_PORT). When PORT is unset (a template install sets no
+# PORT variable), it defaults to 8080 — Railway's healthcheck prober targets
+# its default service port, and an app listening on Artalk's own 23366 default
+# fails the probe with "service unavailable" until the 5-minute retry window
+# expires (proven by the first two template-path installs: both bound 23366
+# while the flag said 8080, both deployments FAILED; setting PORT=23366 on the
+# first install made the prober target 23366 and the redeploy went Online).
 EXPOSE 8080
 
 # No CMD: the entrypoint execs the stock entrypoint with
-# `server --host 0.0.0.0 --port $PORT` (8080 when PORT is unset).
+# `server --host 0.0.0.0 --port $PORT` and exports ATK_PORT=$PORT (the
+# --port flag is dead in Artalk v2; ATK_PORT is what moves the listen port).
 ENTRYPOINT ["/railway-entrypoint.sh"]
 
 LABEL org.opencontainers.image.source="https://github.com/INAPP-Mobile/artalk"

@@ -10,7 +10,7 @@ Artalk is a self-hosted comment system for blogs and websites: a 40 KB embeddabl
 
 ## About Hosting
 
-Artalk runs as one Go-binary service from the official image, pinned by digest. The config, SQLite database, and uploads live on a Railway volume (`/data`) and survive redeploys. The binary boots in about a second and runs in well under 256 MB, so it fits easily on the Hobby plan with no companion services. Railway's injected `PORT` is mapped onto the server on every boot, and the healthcheck is `/api/v2/version` (unauthenticated, 200). The stock image hardcodes `--port 23366`, which Railway never routes to — the other Artalk template on the marketplace sits at 0% health for exactly that reason; this wrapper fixes it.
+Artalk runs as one Go-binary service from the official image, pinned by digest. The config, SQLite database, and uploads live on a Railway volume (`/data`) and survive redeploys. The binary boots in about a second and runs in well under 256 MB, so it fits easily on the Hobby plan with no companion services. Railway's injected `PORT` is mapped onto the server via `ATK_PORT` on every boot, and the healthcheck is `/api/v2/version` (unauthenticated, 200). The stock image hardcodes `--port 23366`, which Railway never routes to — the other Artalk template on the marketplace sits at 0% health for exactly that reason; this wrapper fixes it. (The `--port` CLI flag is a dead flag in Artalk v2 — registered but never read — so `ATK_PORT` is the only mechanism that moves the listen port.)
 
 ## Why Deploy
 
@@ -31,7 +31,7 @@ Artalk runs as one Go-binary service from the official image, pinned by digest. 
 ### Deployment Dependencies
 
 - **Runtime:** single Go-binary service; runs in well under 256 MB.
-- **Port:** 8080 by default, mapped from Railway's injected `PORT` on every boot.
+- **Port:** 8080 by default, mapped from Railway's injected `PORT` via `ATK_PORT` on every boot.
 - **Persistence:** one Railway volume at `/data` (config, SQLite database, uploads).
 - **Healthcheck:** `/api/v2/version` (unauthenticated, 200). The app root `/` is a 302 to the admin sidebar (`/sidebar/`), so it cannot be the platform probe.
 - **Plan tier:** Hobby plan; no companion services.
