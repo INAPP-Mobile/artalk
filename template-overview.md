@@ -10,7 +10,7 @@ Artalk is a self-hosted comment system for blogs and websites: a 40 KB embeddabl
 
 ## About Hosting
 
-Artalk runs as one Go-binary service from the official image, pinned by digest. The config, SQLite database, and uploads live on a Railway volume (`/data`) and survive redeploys. The binary boots in about a second and runs in well under 256 MB, so it fits easily on the Hobby plan with no companion services. Railway's injected `PORT` is mapped onto the server on every boot, and the healthcheck is the frontend (`/`, unauthenticated). The stock image hardcodes `--port 23366`, which Railway never routes to — the other Artalk template on the marketplace sits at 0% health for exactly that reason; this wrapper fixes it.
+Artalk runs as one Go-binary service from the official image, pinned by digest. The config, SQLite database, and uploads live on a Railway volume (`/data`) and survive redeploys. The binary boots in about a second and runs in well under 256 MB, so it fits easily on the Hobby plan with no companion services. Railway's injected `PORT` is mapped onto the server on every boot, and the healthcheck is `/api/v2/version` (unauthenticated, 200). The stock image hardcodes `--port 23366`, which Railway never routes to — the other Artalk template on the marketplace sits at 0% health for exactly that reason; this wrapper fixes it.
 
 ## Why Deploy
 
@@ -33,7 +33,7 @@ Artalk runs as one Go-binary service from the official image, pinned by digest. 
 - **Runtime:** single Go-binary service; runs in well under 256 MB.
 - **Port:** 23366 internally, mapped from Railway's injected `PORT` on every boot.
 - **Persistence:** one Railway volume at `/data` (config, SQLite database, uploads).
-- **Healthcheck:** `/` (frontend, unauthenticated).
+- **Healthcheck:** `/api/v2/version` (unauthenticated, 200). The app root `/` is a 302 to the admin sidebar (`/sidebar/`), so it cannot be the platform probe.
 - **Plan tier:** Hobby plan; no companion services.
 
 **Environment variables (condensed reference):** `ATK_ADMIN_USERS_0_PASSWORD` (`${{secret(16)}}` — admin password, set once on first boot), `ATK_ADMIN_USERS_0_NAME` (`admin`, baked), `ATK_ADMIN_USERS_0_EMAIL` (`admin@example.com`, baked), `ATK_LOCALE` (`en`, baked), `ATK_TIMEZONE` (`UTC`, baked), `ATK_SITE_DEFAULT` (`Artalk Blog`, baked), `ATK_SITE_URL` (derived at boot from `RAILWAY_PUBLIC_DOMAIN` — replace with your real blog URL in the admin sidebar), `PORT` (injected by Railway and mapped automatically). Optional tunables: `ATK_AUTH_ANONYMOUS` (`false`), `ATK_MODERATOR_PENDING_DEFAULT` (`false`), `ATK_CAPTCHA_ENABLED` (`false`), `ATK_ADMIN_NOTIFY_EMAIL_ENABLED` (`true`), `ATK_DB_TYPE` (`sqlite`), `ATK_TRUSTED_DOMAINS` (extra allowed widget origins). See the [upstream environment variable reference](https://artalk.js.org/en/guide/env) for the full list.
