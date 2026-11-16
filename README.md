@@ -69,7 +69,7 @@ Other Artalk settings use their upstream defaults and can be overridden with `AT
 ### Deployment Dependencies
 
 - **Runtime:** single Go-binary service from the official image; boots in ~1s, runs in well under 256 MB.
-- **Port:** 23366 internally, mapped from Railway's injected `PORT` on every boot.
+- **Port:** 8080 by default, mapped from Railway's injected `PORT` on every boot (a template install sets no `PORT` variable, so the entrypoint defaults to Railway's default service port — listening on Artalk's own 23366 default fails the platform healthcheck).
 - **Persistence:** one Railway volume mounted at `/data` (config `artalk.yml`, SQLite database `artalk.db`, uploads).
 - **Healthcheck:** `/api/v2/version` (unauthenticated, 200, reports the running version). Note the app root `/` is a 302 to the admin sidebar (`/sidebar/`), so it cannot be the platform probe.
 - **Plan tier:** runs on Railway's Hobby plan; no companion services.

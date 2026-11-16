@@ -13,7 +13,12 @@
 #   volume) and then runs `/artalk -w / -c /data/artalk.yml "$@"`.
 set -e
 
-PORT="${PORT:-23366}"
+# 8080 is Railway's default service port: a template install sets no PORT
+# variable, and the healthcheck prober targets the default port. (Artalk's own
+# default is 23366 — listening there while the prober targets 8080 fails the
+# healthcheck with "service unavailable"; proven by the first template-path
+# install.)
+PORT="${PORT:-8080}"
 
 if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
   export ATK_SITE_URL="https://${RAILWAY_PUBLIC_DOMAIN}"

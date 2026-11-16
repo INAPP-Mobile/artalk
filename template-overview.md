@@ -31,7 +31,7 @@ Artalk runs as one Go-binary service from the official image, pinned by digest. 
 ### Deployment Dependencies
 
 - **Runtime:** single Go-binary service; runs in well under 256 MB.
-- **Port:** 23366 internally, mapped from Railway's injected `PORT` on every boot.
+- **Port:** 8080 by default, mapped from Railway's injected `PORT` on every boot.
 - **Persistence:** one Railway volume at `/data` (config, SQLite database, uploads).
 - **Healthcheck:** `/api/v2/version` (unauthenticated, 200). The app root `/` is a 302 to the admin sidebar (`/sidebar/`), so it cannot be the platform probe.
 - **Plan tier:** Hobby plan; no companion services.
