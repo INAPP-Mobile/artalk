@@ -1,0 +1,1 @@
+{"ATK_ADMIN_USERS_0_PASSWORD":{"defaultValue":"${{secret(16)}}","description":"Password for the auto-seeded admin account (username admin, email admin@example.com).","isOptional":false}}
