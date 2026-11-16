@@ -30,8 +30,9 @@ COPY entrypoint.sh /railway-entrypoint.sh
 RUN chmod +x /railway-entrypoint.sh
 
 # Config (artalk.yml), SQLite database (artalk.db) and uploads all live under
-# /data; the stock image already declares VOLUME ["/data"].
-VOLUME ["/data"]
+# /data, mounted as a Railway volume (do NOT add a Dockerfile VOLUME
+# instruction — Railway's builder rejects it: "docker VOLUME ... is not
+# supported, use Railway Volumes").
 
 EXPOSE 23366
 
