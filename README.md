@@ -21,7 +21,7 @@ Artalk.init({
   el: '#Comments',
   pageKey: '/my-first-post.html',
   site: 'Artalk Blog',
-  server: 'https://<your-railway-domain>',
+  server: 'https://{your-railway-domain}',
 })
 ```
 
